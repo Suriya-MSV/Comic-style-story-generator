@@ -1,8 +1,8 @@
 // About.jsx (updated)
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-import creator1 from "../assets/Suriyavel.jpg";
-import creator2 from "../assets/Vignesh.jpg";
+import creator1 from "../assets/suriyavel.jpg";
+import creator2 from "../assets/vignesh.jpg";
 import exampleImage1 from "../assets/example1.png";
 import exampleImage2 from "../assets/example2.png";
 import CoT from "../assets/cot.png";
