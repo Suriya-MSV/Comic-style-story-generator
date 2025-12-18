@@ -1,0 +1,172 @@
+{
+  "8": {
+    "inputs": {
+      "samples": [
+        "31",
+        0
+      ],
+      "vae": [
+        "39",
+        0
+      ]
+    },
+    "class_type": "VAEDecode",
+    "_meta": {
+      "title": "VAE Decode"
+    }
+  },
+  "27": {
+    "inputs": {
+      "width": 2048,
+      "height": 3072,
+      "batch_size": 1
+    },
+    "class_type": "EmptySD3LatentImage",
+    "_meta": {
+      "title": "EmptySD3LatentImage"
+    }
+  },
+  "31": {
+    "inputs": {
+      "seed": 1078347424916127,
+      "steps": 25,
+      "cfg": 1,
+      "sampler_name": "euler",
+      "scheduler": "beta",
+      "denoise": 1,
+      "model": [
+        "106",
+        0
+      ],
+      "positive": [
+        "45",
+        0
+      ],
+      "negative": [
+        "42",
+        0
+      ],
+      "latent_image": [
+        "27",
+        0
+      ]
+    },
+    "class_type": "KSampler",
+    "_meta": {
+      "title": "KSampler"
+    }
+  },
+  "38": {
+    "inputs": {
+      "unet_name": "flux1-krea-dev_fp8_scaled.safetensors",
+      "weight_dtype": "default"
+    },
+    "class_type": "UNETLoader",
+    "_meta": {
+      "title": "Load Diffusion Model"
+    }
+  },
+  "39": {
+    "inputs": {
+      "vae_name": "ae.safetensors"
+    },
+    "class_type": "VAELoader",
+    "_meta": {
+      "title": "Load VAE"
+    }
+  },
+  "40": {
+    "inputs": {
+      "clip_name1": "clip_l.safetensors",
+      "clip_name2": "t5xxl_fp8_e4m3fn_scaled.safetensors",
+      "type": "flux",
+      "device": "default"
+    },
+    "class_type": "DualCLIPLoader",
+    "_meta": {
+      "title": "DualCLIPLoader"
+    }
+  },
+  "42": {
+    "inputs": {
+      "conditioning": [
+        "45",
+        0
+      ]
+    },
+    "class_type": "ConditioningZeroOut",
+    "_meta": {
+      "title": "ConditioningZeroOut"
+    }
+  },
+  "45": {
+    "inputs": {
+      "text": "A small comic story shown in four panels arranged in a 2x2 grid.\n\nPanel 1:\nA young Indian college student sits at a desk late at night, looking worried at a laptop screen filled with code.\nClear white speech bubble above the character saying:\n\"This code should work… why is it failing?\"\n\nPanel 2:\nThe same student leans back in the chair, thinking deeply, with code and ideas floating lightly in the background.\nClear white speech bubble saying:\n\"Wait… I forgot the logic.\"\n\nPanel 3:\nThe student types confidently on the laptop, smiling, with the screen glowing brighter.\nClear white speech bubble saying:\n\"Yes! That’s it!\"\n\nPanel 4:\nMorning light enters the room. The student looks proud, holding a coffee cup, laptop showing success.\nClear white speech bubble saying:\n\"My comic AI is finally working.\"\n\nArt style:\nClean modern digital comic illustration.\nBold black outlines.\nSimple smooth shading.\nVibrant but balanced colors.\nConsistent character appearance across all panels.\nNot photorealistic, clearly illustrated.\n\nLayout:\nClear panel borders.\nSpeech bubbles fully inside panels.\nText is large, centered, and easy to read.\n\nCamera:\nMedium shots, straight-on view.\n\nLighting:\nSoft indoor lighting at night, warm morning light in final panel.\n\nMood:\nRelatable, hopeful, tech-focused.\nHigh detail, sharp focus.\n",
+      "clip": [
+        "40",
+        0
+      ]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {
+      "title": "CLIP Text Encode (Prompt)"
+    }
+  },
+  "55": {
+    "inputs": {
+      "tile_size": 512,
+      "overlap": 64,
+      "temporal_size": 64,
+      "temporal_overlap": 8,
+      "samples": [
+        "31",
+        0
+      ],
+      "vae": [
+        "39",
+        0
+      ]
+    },
+    "class_type": "VAEDecodeTiled",
+    "_meta": {
+      "title": "VAE Decode (Tiled)"
+    }
+  },
+  "104": {
+    "inputs": {
+      "filename_prefix": "flux_dype",
+      "images": [
+        "55",
+        0
+      ]
+    },
+    "class_type": "SaveImage",
+    "_meta": {
+      "title": "Save Image"
+    }
+  },
+  "106": {
+    "inputs": {
+      "width": 2048,
+      "height": 2048,
+      "model_type": "auto",
+      "method": "vision_yarn",
+      "yarn_alt_scaling": false,
+      "enable_dype": true,
+      "base_resolution": 1024,
+      "dype_start_sigma": 1,
+      "dype_scale": 2,
+      "dype_exponent": 2,
+      "base_shift": 0.5,
+      "max_shift": 1.15,
+      "model": [
+        "38",
+        0
+      ]
+    },
+    "class_type": "DyPE_FLUX",
+    "_meta": {
+      "title": "DyPE"
+    }
+  }
+}

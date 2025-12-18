@@ -73,3 +73,5 @@ Thumbs.db
 .cache/
 .temp/
 .tmp/
+
+test.py
