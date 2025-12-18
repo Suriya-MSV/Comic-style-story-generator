@@ -3,11 +3,11 @@ import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import creator1 from "../assets/Suriyavel.jpg";
 import creator2 from "../assets/Vignesh.jpg";
-import exampleImage1 from "../../public/example1.png";
-import exampleImage2 from "../../public/example2.png";
-import CoT from "../../public/cot.png";
-import ComfyUI from "../../public/comfyui.png";
-import GeminiAI from "../../public/geminiAI.png";
+import exampleImage1 from "../assets/example1.png";
+import exampleImage2 from "../assets/example2.png";
+import CoT from "../assets/cot.png";
+import ComfyUI from "../assets/comfyui.png";
+import GeminiAI from "../assets/geminiAI.png";
 
 function About() {
   const navigate = useNavigate();

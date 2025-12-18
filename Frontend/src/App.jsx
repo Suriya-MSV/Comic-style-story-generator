@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Header from "./Components/Header.jsx";
-import Footer from "./Components/Footer.jsx";
+import Header from "./components/Header.jsx";
+import Footer from "./components/Footer.jsx";
 import EntryPage from "./pages/EntryPage";
 import About from './pages/About';
 import GenerateImage from "./pages/GenerateImage.jsx";
