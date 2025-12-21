@@ -1,10 +1,12 @@
 import { useState } from "react";
-
+import PromptStory from "../components/Promt_story.jsx";
+ 
 function GenerateImage() {
   const [prompt, setPrompt] = useState("");
   const [imageUrl, setImageUrl] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [data , setData] = useState(null);
 
   const handleGenerate = async () => {
     if (!prompt.trim()) return;
@@ -14,7 +16,7 @@ function GenerateImage() {
     setImageUrl(null);
 
     try {
-      const response = await fetch("http://localhost:5000/api/generate-image", {
+      const response = await fetch("http://localhost:5000/api/generate-story", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ prompt }),
@@ -23,6 +25,9 @@ function GenerateImage() {
       if (!response.ok) throw new Error();
 
       const data = await response.json();
+      setData(data.story);
+      
+            
       setImageUrl(data.imageUrl);
     } catch {
       setError("Something went wrong while generating the comic.");
@@ -102,6 +107,9 @@ function GenerateImage() {
         {error && (
           <p className="mt-6 text-center text-red-400 text-sm">{error}</p>
         )}
+         <PromptStory story={data} />
+
+        
 
         {/* Output */}
         {imageUrl && (

@@ -3,63 +3,32 @@ import uuid
 import requests
 import time
 
-POSITIVE_PROMPT = """A small comic story shown in four panels arranged in a 2x2 grid.
+POSITIVE_PROMPT = """You are generating a single comic page.
 
-Panel 1:
-A young Indian college student finds an old dusty camera inside a wooden box in a quiet room.
-The camera looks mysterious and slightly glowing.
-Clear white speech bubble saying:
-"Where did this come from?"
+LAYOUT REQUIREMENTS:
+- Create a 2×3 grid (2 columns × 3 rows)
+- Exactly 6 panels total
+- Panels must be read left-to-right, top-to-bottom
+- Panel order:
+  Row 1: Panel 1 | Panel 2
+  Row 2: Panel 3 | Panel 4
+  Row 3: Panel 5 | Panel 6
 
-Panel 2:
-The student points the camera at a messy room and presses the shutter.
-A bright magical flash fills the panel.
-Clear white speech bubble saying:
-"Let me try it."
+GLOBAL RULES:
+- Use the STORY VISUAL STYLE consistently across all panels
+- Maintain character consistency for Elara in every panel
+- Each panel must match its corresponding PANEL IMAGE PROMPT exactly
+- Render dialogue ONLY as speech bubbles inside each panel
+- Do NOT add narration boxes or extra text
+- Do NOT merge panels or change panel order
+- One unified comic page, not separate images
 
-Panel 3:
-The room is now clean and beautiful, filled with warm light.
-The student looks shocked and amazed, holding the camera.
-Clear white speech bubble saying:
-"It changed everything!"
+TASK:
+Using the information below, generate a complete 2×3 comic page image.
 
-Panel 4:
-The student smiles and carefully puts the camera back into the box.
-The camera softly glows.
-Clear white speech bubble saying:
-"Some magic is better used gently."
-
-Art style:
-Clean digital comic illustration.
-Bold black outlines.
-Smooth soft shading.
-Warm, vibrant colors.
-Consistent character design across all panels.
-Not photorealistic, clearly illustrated.
-
-Layout:
-Clear panel borders.
-Speech bubbles fully inside panels.
-Large, easy-to-read text.
-
-Camera:
-Medium shots, straight-on view.
-
-Lighting:
-Soft indoor lighting with magical glow effects.
-
-Mood:
-Wholesome, magical, calm.
-High detail, sharp focus.
 """
-NEGATIVE_PROMPT = ""
 COMFYUI_API_URL = "http://localhost:8188"
-HEIGHT = 1024
-WIDTH = 1024
-SEED = 1078347424916127
-STEPS = 25
-CFG = 1
-CHECHPOINT_NAME = "flux1-krea-dev_fp8_scaled.safetensors"
+STEPS = 15
 
 def create_workflow():
     workflow = {
@@ -81,8 +50,8 @@ def create_workflow():
   },
   "27": {
     "inputs": {
-      "width": WIDTH,
-      "height": HEIGHT,
+      "width": 2048,
+      "height": 3072,
       "batch_size": 1
     },
     "class_type": "EmptySD3LatentImage",
@@ -92,9 +61,9 @@ def create_workflow():
   },
   "31": {
     "inputs": {
-      "seed": SEED,
+      "seed": 953920934923132,
       "steps": STEPS,
-      "cfg": CFG,
+      "cfg": 1,
       "sampler_name": "euler",
       "scheduler": "beta",
       "denoise": 1,
@@ -122,7 +91,7 @@ def create_workflow():
   },
   "38": {
     "inputs": {
-      "unet_name": CHECHPOINT_NAME,
+      "unet_name": "flux1-krea-dev_fp8_scaled.safetensors",
       "weight_dtype": "default"
     },
     "class_type": "UNETLoader",
@@ -224,7 +193,7 @@ def create_workflow():
       "base_shift": 0.5,
       "max_shift": 1.15,
       "model": [
-        "38",
+        "107",
         0
       ]
     },
@@ -232,9 +201,22 @@ def create_workflow():
     "_meta": {
       "title": "DyPE"
     }
+  },
+  "107": {
+    "inputs": {
+      "lora_name": "comic strip style v2.safetensors",
+      "strength_model": 1,
+      "model": [
+        "38",
+        0
+      ]
+    },
+    "class_type": "LoraLoaderModelOnly",
+    "_meta": {
+      "title": "LoraLoaderModelOnly"
+    }
   }
 }
-
     return workflow
 
 def generate_client_id():
@@ -278,7 +260,7 @@ def wait_for_completion(prompt_id):
         time.sleep(1)
 
 def download_image(status_data, prompt_id):
-    prompt_data = status_data.get(prompt_id)
+    prompt_data = status_data
     if not prompt_data:
         raise Exception("Prompt ID not found in history data.")
 
@@ -338,5 +320,7 @@ def main():
     
     download_image(status_data, prompt_id)
 
-if __name__ == "__main__":
+def run_image_generator(prompt):
+    
+    POSITIVE_PROMPT += prompt
     main()
