@@ -159,83 +159,6 @@ COMIC PANELS CONTENT:
     return response.text.strip()
 
 # =======================
-# MAIN COMIC PIPELINE
-# =======================
-# def run_comic_pipeline(user_description):
-
-#     # -----------------------
-#     # HIT 1: STORY OUTLINE
-#     # -----------------------
-#     print("\n--- HIT 1: Generating Story Outline ---")
-
-#     outline_prompt = f"""
-# Create a 6-panel comic story outline for the following idea:
-
-# "{user_description}"
-
-# RULES:
-# - Exactly 6 panels
-# - One sentence per panel
-# - Clear beginning → climax → ending
-
-# FORMAT:
-# 1. Panel 1 - ...
-# 2. Panel 2 - ...
-# 3. Panel 3 - ...
-# 4. Panel 4 - ...
-# 5. Panel 5 - ...
-# 6. Panel 6 - ...
-# """
-
-#     outline = call_sambanova(outline_prompt)
-#     print("\n📘 STORY OUTLINE:\n")
-#     print(outline)
-
-#     # -----------------------
-#     # HIT 2: PANEL GENERATION
-#     # -----------------------
-#     print("\n--- HIT 2: Generating Comic Panels ---")
-
-#     panels = []
-
-#     for i in range(1, 7):
-#         print(f"🖊️ Generating Panel {i}...")
-
-#         panel_prompt = textwrap.dedent(f"""
-# Expand Panel {i} into a detailed comic panel.
-
-# STORY OUTLINE:
-# {outline}
-
-# PANEL {i} MUST INCLUDE:
-# - Scene title
-# - Visual description (actions + setting)
-# - Character descriptions
-# - Lighting & mood
-# - Dialogue (Character: "Dialogue")
-
-# IMPORTANT:
-# Output ONLY Panel {i}.
-# """)
-
-#         panel_text = call_sambanova(panel_prompt)
-#         panels.append(panel_text)
-
-#     # -----------------------
-#     # FINAL HIT: GEMINI
-#     # -----------------------
-#     image_prompts = generate_image_prompts_with_gemini(panels)
-
-#     # -----------------------
-#     # FINAL OUTPUT
-#     # -----------------------
-#     print("\n" + "=" * 80)
-#     print("🎨 FINAL IMAGE GENERATION PROMPTS (GEMINI)")
-#     print("=" * 80)
-#     print(image_prompts)
-
-
-# =======================
 # ENTRY POINT
 # =======================
 def generate_story_outline(user_description):
@@ -270,12 +193,14 @@ FORMAT:
 
     return outline
 
-def comic_pipeline_from_outline(story_outline):
+def comic_pipeline_from_outline(story_outline): 
     """
     Given a story outline, generate:
     1. 6 detailed comic panels
     2. Gemini image prompts for all panels
-    Returns a dict with panels and image prompts.
+
+    Returns:
+    Only the Gemini image prompts.
     """
     print("\n--- Generating Comic Panels ---")
 
@@ -299,17 +224,11 @@ IMPORTANT:
 Output ONLY Panel {i}.
 """)
         panel_text = call_sambanova(panel_prompt)
-        panels.append(panel_text)
+        panels.append(panel_text.strip())
 
     print("\n--- Generating Gemini Image Prompts ---")
     image_prompts = generate_image_prompts_with_gemini(panels)
-
-    print("\n" + "=" * 80)
-    print("🎨 FINAL IMAGE GENERATION PROMPTS (GEMINI)")
-    print("=" * 80)
     print(image_prompts)
 
-    return {
-        "panels": panels,
-        "image_prompts": image_prompts
-    }
+    # Return only the Gemini image prompts
+    return image_prompts.strip()

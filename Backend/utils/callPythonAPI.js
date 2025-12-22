@@ -1,20 +1,19 @@
-export const callPythonAPI = async (endpoint, payload = {}, method = "POST") => {
+import axios from "axios";
+
+export const callPythonAPI = async (endpoint, payload = {}, method = "POST", timeoutMs = 1500000) => {
   try {
-    const response = await fetch(endpoint, {
+    const response = await axios({
+      url: endpoint,
       method,
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: method !== "GET" ? JSON.stringify(payload) : undefined
+      data: payload,
+      timeout: timeoutMs
     });
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`API Error ${response.status}: ${errorText}`);
-    }
-
-    return await response.json();
+    return response.data;
   } catch (err) {
+    if (err.code === "ECONNABORTED") {
+      throw new Error(`API request timed out after ${timeoutMs / 1000} seconds`);
+    }
     throw err;
   }
 };

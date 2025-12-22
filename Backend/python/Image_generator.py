@@ -2,6 +2,10 @@ import json
 import uuid
 import requests
 import time
+import base64
+import os
+
+IMGBB_API_KEY = os.getenv("IMGBB_API_KEY")
 
 POSITIVE_PROMPT = """You are generating a single comic page.
 
@@ -259,68 +263,62 @@ def wait_for_completion(prompt_id):
 
         time.sleep(1)
 
-def download_image(status_data, prompt_id):
-    prompt_data = status_data
-    if not prompt_data:
-        raise Exception("Prompt ID not found in history data.")
-
-    outputs = prompt_data.get("outputs", {})
-    image_count = 0
+def download_image(status_data):
+    outputs = status_data.get("outputs", {})
 
     for node_id, node_output in outputs.items():
         if "images" not in node_output:
             continue
 
         for image in node_output["images"]:
-            filename = image["filename"]
-            subfolder = image.get("subfolder", "")
-            image_type = image.get("type", "output")
-
-            print(f"Downloading image: {filename} (node {node_id})")
-
             params = {
-                "filename": filename,
-                "type": image_type
+                "filename": image["filename"],
+                "type": image.get("type", "output")
             }
-            if subfolder:
-                params["subfolder"] = subfolder
+
+            if image.get("subfolder"):
+                params["subfolder"] = image["subfolder"]
 
             response = requests.get(f"{COMFYUI_API_URL}/view", params=params)
 
             if response.status_code == 200:
-                out_name = f"downloaded_{image_count}.png"
-                with open(out_name, "wb") as f:
-                    f.write(response.content)
+                print("Uploading image to ImgBB...")
+                image_url = upload_to_imgbb(response.content)
+                print("✅ Image URL:", image_url)
+                return image_url
 
-                print(f"Saved: {out_name}")
-                image_count += 1
-            else:
-                print("Failed to download:", response.text)
+    raise Exception("No image generated")
 
-    if image_count == 0:
-        print("⚠️ No images found in outputs (but generation succeeded).")
-    else:
-        print(f"✅ Downloaded {image_count} image(s)")
+def upload_to_imgbb(image_bytes):
+    """
+    Uploads image bytes to ImgBB and returns the public URL.
+    """
+    if not IMGBB_API_KEY:
+        raise Exception("ImgBB API key not found in environment")
+
+    encoded = base64.b64encode(image_bytes).decode("utf-8")
+
+    response = requests.post(
+        "https://api.imgbb.com/1/upload",
+        data={
+            "key": IMGBB_API_KEY,
+            "image": encoded
+        }
+    )
+
+    if response.status_code != 200:
+        raise Exception(f"ImgBB upload failed: {response.text}")
+
+    return response.json()["data"]["url"]
 
 def main():
-    print("="*50)
-    print("Starting image generation workflow...")
-    print("="*50)
-
     prompt_id = submit_workflow()
-    if not prompt_id:
-        print("No prompt ID returned. Exiting.")
-        return
-    
     status_data = wait_for_completion(prompt_id)
+    image_url = download_image(status_data)
+    return image_url
 
-    if not status_data:
-        print("No status data returned. Exiting.")
-        return
-    
-    download_image(status_data, prompt_id)
 
 def run_image_generator(prompt):
-    
-    POSITIVE_PROMPT += prompt
-    main()
+    global POSITIVE_PROMPT
+    POSITIVE_PROMPT = POSITIVE_PROMPT + "\n\n" + prompt
+    return main()

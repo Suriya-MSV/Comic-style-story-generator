@@ -14,10 +14,12 @@ export const generateStory = async (req, res) => {
     }
 
     console.log("🟢 Generating story...");
-    const story = await callPythonAPI("http://127.0.0.1:8000/generate-story", { prompt });
+    const story = await callPythonAPI("http://127.0.0.1:8000/generate-story", {
+      prompt,
+    });
 
     console.log("🟢 Story generated:", story);
-    res.json({ story });
+    res.json({ "story": story.story });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Story generation failed" });
@@ -27,23 +29,36 @@ export const generateStory = async (req, res) => {
 // =====================
 // 2️⃣ Image Generation
 // =====================
-export const generateImage = async (req, res) => {
+export const generateComic = async (req, res) => {
   console.log("✅ FRONTEND HIT THE IMAGE ENDPOINT");
   console.log("📩 Request body:", req.body);
 
   try {
     const { story } = req.body;
+
     if (!story) {
-      return res.status(400).json({ error: "Story required to generate images" });
+      return res.status(400).json({ error: "Story required" });
     }
 
-    console.log("🟢 Generating image from story...");
-    const imageUrl = await callPythonAPI("python/Image_generator.py", story);
+    const pythonResponse = await callPythonAPI(
+      "http://127.0.0.1:8000/generate-comic",
+      { story }
+    );
 
-    console.log("🟢 Image generated:", imageUrl);
+    console.log("🐍 Python response:", pythonResponse);
+
+    // 👇 extract actual URL
+    const imageUrl =
+      pythonResponse.imageUrl || pythonResponse.image_url;
+
+    if (!imageUrl) {
+      throw new Error("No image URL returned from Python");
+    }
+
     res.json({ imageUrl });
   } catch (err) {
-    console.error(err);
+    console.error("❌ Image generation failed:", err);
     res.status(500).json({ error: "Image generation failed" });
   }
 };
+
